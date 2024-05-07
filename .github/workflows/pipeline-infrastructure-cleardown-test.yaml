@@ -19,8 +19,8 @@ jobs:
     with:
       environment: test
       workspace: ${{ needs.metadata.outputs.workspace }}
-      domain: "uec-dos-service-management"
-      stacks: '["application", "data_migration"]'
+      domain: "uec-integration-test"
+      stacks: '["application"]'
     secrets: inherit
 
   summarise:

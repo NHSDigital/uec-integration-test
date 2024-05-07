@@ -20,7 +20,7 @@ jobs:
     with:
       environment: dev
       workspace: ${{ needs.metadata.outputs.workspace }}
-      stacks: '["github-runner", "terraform_management", "application", "data_migration"]'
+      stacks: '["github-runner", "terraform_management", "application"]'
     secrets: inherit
   unit-tests:
     name: Unit Test
@@ -42,53 +42,12 @@ jobs:
       uses: NHSDigital/uec-dos-management/.github/workflows/deploy-infrastructure.yaml@v0.18
       with:
         environment: dev
-        domain: "uec-dos-service-management"
+        domain: "uec-integration-test"
         workspace: ${{ needs.metadata.outputs.workspace }}
-        stacks: '["application", "data_migration"]'
+        stacks: '["application"]'
         action: apply
       secrets: inherit
-  build-and-deploy-application-code:
-    name: Build and deploy application
-    needs:
-      [
-        metadata,
-        deploy-application-infrastructure
-      ]
-    uses: NHSDigital/uec-dos-management/.github/workflows/build-and-deploy-application.yaml@v0.18
-    with:
-      directory: 'application'
-      environment: dev
-      workspace: ${{ needs.metadata.outputs.workspace }}
-      services:
-        "[
-          'healthcare-services-data-manager',
-          'locations-data-manager',
-          'organisation-affiliations-data-manager',
-          'organisations-data-manager',
-          'questionnaire-responses-data-manager',
-          'questionnaires-data-manager'
-        ]"
-    secrets: inherit
-  build-and-deploy-data-migration-code:
-    name: Build and deploy data migration
-    needs:
-      [
-        metadata,
-        deploy-application-infrastructure
-      ]
-    uses: NHSDigital/uec-dos-management/.github/workflows/build-and-deploy-application.yaml@v0.18
-    with:
-      directory: 'data_migration'
-      environment: dev
-      workspace: ${{ needs.metadata.outputs.workspace }}
-      services:
-        "[
-          'org_data_load',
-          'locations_data_load',
-          'organisation_affiliations_data_load',
-          'service_data_load'
-        ]"
-    secrets: inherit
+  
   slack-notifications:
     name: Send notification to slack
     needs: [
@@ -96,8 +55,6 @@ jobs:
       quality-check,
       unit-tests,
       deploy-application-infrastructure,
-      build-and-deploy-application-code,
-      build-and-deploy-data-migration-code,
     ]
     if: always()
     uses: NHSDigital/uec-dos-management/.github/workflows/slack-notifications.yaml@v0.18
